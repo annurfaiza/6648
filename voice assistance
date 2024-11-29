@@ -1,0 +1,50 @@
+# Import necessary libraries
+import google.generativeai as genai
+import speech_recognition as sr
+import pyttsx3
+
+# Configure the Google API key
+GOOGLE_API_KEY = 'AIzaSyBB43BAU6iGTw_U3eqbT3dQyZsTGRxoU84'
+genai.configure(api_key=GOOGLE_API_KEY)
+
+# Initialize the generative model
+model = genai.GenerativeModel('gemini-pro')
+
+# Initialize the pyttsx3 engine
+engine = pyttsx3.init()
+
+# Function to capture speech input
+def capture_speech():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening for your question...")
+        try:
+            audio = recognizer.listen(source)
+            # Recognize speech using Google Web Speech API
+            speech_text = recognizer.recognize_google(audio)
+            print(f"You said: {speech_text}")
+            return speech_text
+        except sr.UnknownValueError:
+            print("Sorry, I could not understand the audio.")
+        except sr.RequestError as e:
+            print(f"Could not request results from Google Speech Recognition service; {e}")
+    return None
+
+# Function to speak the response
+def speak_response(text):
+    print("Speaking the response...")
+    engine.say(text)
+    engine.runAndWait()
+
+# Main function to process speech input and interact with the generative model
+def main():
+    user_input = capture_speech()
+    if user_input:
+        response = model.generate_content(user_input)
+        print("Response from the AI model:")
+        print(response.text)
+        speak_response(response.text)
+
+# Run the main function
+if _name_ == "_main_":
+    main()
